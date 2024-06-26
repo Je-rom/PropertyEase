@@ -33,6 +33,7 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
+//check if password matches confirm password
 UserSchema.pre<UserDocument>('save', function (next) {
   const user = this as UserDocument;
   if (user.isModified('password') || user.isNew) {
@@ -44,3 +45,8 @@ UserSchema.pre<UserDocument>('save', function (next) {
   user.confirmPassword = undefined;
   next();
 });
+
+UserSchema.pre<UserDocument>('save', function(next){
+
+  next();
+})
