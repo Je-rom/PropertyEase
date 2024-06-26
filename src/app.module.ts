@@ -6,11 +6,10 @@ import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb+srv://abadijerry44:M23rR7KnTK90zOBA@natourcluster.jfbbiwz.mongodb.net/?retryWrites=true&w=majority&appName=NatourCluster'),
+    MongooseModule.forRoot('//mongodb://localhost:27017/'),
     AuthModule,
     UserModule,
   ],
 })
 export class AppModule {}
 
-//mongodb://localhost:27017/
