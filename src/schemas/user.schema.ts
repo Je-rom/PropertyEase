@@ -1,11 +1,25 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import * as bcrypt from 'bcrypt';
+import * as validator from 'validator';
 
-export type UserDocument = User & Document; //typeScript type that combines the properties of your User class with those of Mongoose's Document interface
+export interface UserDocument extends Document {
+  name: string;
+  email: string;
+  phoneNumber: number;
+  role: string;
+  password: string;
+  confirmPassword: string;
+  photo?: string;
+  correctPassword(
+    enteredPassword: string,
+    userPassword: string,
+  ): Promise<boolean>;
+}
 
 @Schema()
 export class User {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   name: string;
 
   @Prop({ required: true, unique: true, lowercase: true })
@@ -15,7 +29,6 @@ export class User {
   phoneNumber: number;
 
   @Prop({
-    required: true,
     enum: ['PropertyOwner', 'Tenant'],
     default: 'Tenant',
   })
@@ -24,7 +37,16 @@ export class User {
   @Prop({ required: true, select: false })
   password: string;
 
-  @Prop({ select: false })
+  @Prop({
+    required: true,
+    select: false,
+    validate: {
+      validator: function (e: string) {
+        return e === this.password;
+      },
+      message: 'Confirm password does not match with the password',
+    },
+  })
   confirmPassword: string;
 
   @Prop()
@@ -33,20 +55,18 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-//check if password matches confirm password
-UserSchema.pre<UserDocument>('save', function (next) {
-  const user = this as UserDocument;
-  if (user.isModified('password') || user.isNew) {
-    if (user.password !== user.confirmPassword) {
-      console.log('Passwords do not match');
-      return next(new Error('Passwords do not match.'));
-    }
-  }
-  user.confirmPassword = undefined;
+//hash password
+UserSchema.pre<UserDocument>('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  this.confirmPassword = undefined;
   next();
 });
 
-UserSchema.pre<UserDocument>('save', function(next){
-
-  next();
-})
+//check if password correct when singing in
+UserSchema.methods.correctPassword = async function (
+  enteredPassword: string,
+  userPassword: string,
+): Promise<boolean> {
+  return await bcrypt.compare(enteredPassword, userPassword);
+};

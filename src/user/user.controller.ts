@@ -6,21 +6,15 @@ import {
   Param,
   HttpException,
   Patch,
-  Delete
+  Delete,
 } from '@nestjs/common';
 import { userService } from './user.service';
-import { CreateUserDto } from './dto/CreateUser.dto';
 import mongoose from 'mongoose';
 import { updateUserDto } from './dto/UpdateUser.dto';
 
 @Controller('users')
 export class UserController {
   constructor(private userService: userService) {}
-
-  @Post()
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    return await this.userService.createUser(createUserDto);
-  }
 
   @Get()
   async getUsers() {
@@ -37,23 +31,29 @@ export class UserController {
   }
 
   @Patch(':id')
-  async updateUser(@Param('id') id:string, @Body() updateuserDto: updateUserDto) {
+  async updateUser(
+    @Param('id') id: string,
+    @Body() updateuserDto: updateUserDto,
+  ) {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) throw new HttpException('invalid id', 400);
-    const updatedUser =  await this.userService.updateUserById(id, updateuserDto)
-    if(!updatedUser){
-      throw new HttpException('user not found', 404); 
+    const updatedUser = await this.userService.updateUserById(
+      id,
+      updateuserDto,
+    );
+    if (!updatedUser) {
+      throw new HttpException('user not found', 404);
     }
-    return updatedUser
+    return updatedUser;
   }
 
   @Delete(':id')
-  async deleteUser(@Param('id') id:string){
+  async deleteUser(@Param('id') id: string) {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) throw new HttpException('invalid id', 400);
-    const deletedUser =  await this.userService.deleteUserById(id);
-    if(!deletedUser){
-      throw new HttpException('user not found', 404); 
+    const deletedUser = await this.userService.deleteUserById(id);
+    if (!deletedUser) {
+      throw new HttpException('user not found', 404);
     }
   }
 }

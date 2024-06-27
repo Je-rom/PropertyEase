@@ -2,23 +2,11 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from 'src/schemas/user.schema';
-import { CreateUserDto } from './dto/CreateUser.dto';
 import { updateUserDto } from './dto/UpdateUser.dto';
 
 @Injectable()
 export class userService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
-
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
-    if (createUserDto.password !== createUserDto.confirmPassword) {
-      throw new BadRequestException('Passwords do not match.');
-    }
-    const createdUser = new this.userModel({
-      ...createUserDto,
-      confirmPassword: createUserDto.confirmPassword,
-    });
-    return await createdUser.save();
-  }
 
   getAllUsers() {
     return this.userModel.find();
@@ -28,11 +16,11 @@ export class userService {
     return this.userModel.findById(_id);
   }
 
-  updateUserById(id: string, updateUserDto: updateUserDto){
-    return this.userModel.findByIdAndUpdate(id, updateUserDto, {new: true})
+  updateUserById(id: string, updateUserDto: updateUserDto) {
+    return this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true });
   }
 
-  deleteUserById(id: string){
-    return this.userModel.findByIdAndDelete(id)
+  deleteUserById(id: string) {
+    return this.userModel.findByIdAndDelete(id);
   }
 }
