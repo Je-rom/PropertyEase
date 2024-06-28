@@ -5,13 +5,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { userService } from 'src/user/user.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from 'src/schemas/user.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly authService: AuthService,
-    private readonly userService: userService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<any> {
@@ -31,14 +33,16 @@ export class JwtAuthGuard implements CanActivate {
 
     const userId = decodedToken.id;
     //check if the user with the token still exists
-    const user = await this.userService.getUserById(userId);
+    const user = await this.userModel.findById(userId);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
 
     //check if user changed password after the token was issued
-    
-
+    if(user.changedPasswordAfter(decodedToken.iat)){
+      throw new UnauthorizedException('User recently changed password! Please log in again.')
+    }
+  
     return user;
   }
 

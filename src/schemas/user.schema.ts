@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import * as validator from 'validator';
+import * as crypto from 'crypto';
 
 export interface UserDocument extends Document {
   name: string;
@@ -15,6 +16,7 @@ export interface UserDocument extends Document {
     enteredPassword: string,
     userPassword: string,
   ): Promise<boolean>;
+  changedPasswordAfter(JWTTimestamp): Promise<boolean>
 }
 
 @Schema()
@@ -51,6 +53,15 @@ export class User {
 
   @Prop()
   photo: string;
+
+  @Prop()
+  passwordChangedAt: Date;
+
+  @Prop()
+  passwordResetToken: string;
+
+  @Prop()
+  passwordResetExpires: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
@@ -70,3 +81,28 @@ UserSchema.methods.correctPassword = async function (
 ): Promise<boolean> {
   return await bcrypt.compare(enteredPassword, userPassword);
 };
+
+UserSchema.pre('save', async function(next){
+  if(this.isModified('password') || this.isNew){
+    return next();
+  }
+  this.passwordChangedAt = new Date(Date.now() - 1000);
+  next();
+})
+
+//check if password was changed after the token was issued
+UserSchema.methods.changedPasswordAfter = async function(JWTTimestamp): Promise<boolean>{
+  if(this. passwordChangedAt){
+    const changedTimeStamp = (this.passwordChangedAt.getTime()/1000, 10);
+    return JWTTimestamp < changedTimeStamp
+  }
+  return false;
+}
+
+//create password reset token
+UserSchema.methods.createPasswordResetToken = async function(){
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  return resetToken;
+}
