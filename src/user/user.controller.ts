@@ -7,21 +7,25 @@ import {
   HttpException,
   Patch,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { userService } from './user.service';
 import mongoose from 'mongoose';
 import { updateUserDto } from './dto/UpdateUser.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('users')
 export class UserController {
   constructor(private userService: userService) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   async getUsers() {
     return await this.userService.getAllUsers();
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   async getUserById(@Param('id') _id: string) {
     const isValid = mongoose.Types.ObjectId.isValid(_id);
     if (!isValid) throw new HttpException('user not found', 404);
@@ -31,6 +35,7 @@ export class UserController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   async updateUser(
     @Param('id') id: string,
     @Body() updateuserDto: updateUserDto,
@@ -48,6 +53,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async deleteUser(@Param('id') id: string) {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) throw new HttpException('invalid id', 400);

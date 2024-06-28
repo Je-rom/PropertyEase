@@ -8,6 +8,8 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/schemas/user.schema';
 import { TokenService } from 'src/token/token.service';
 import { CreateUserDto } from 'src/user/dto/CreateUser.dto';
+import { LoginUserDto } from 'src/user/dto/LoginUser.dto';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable({})
 export class AuthService {
@@ -24,21 +26,29 @@ export class AuthService {
   }
 
   //SIGN IN
-  async signin(createUserDto: CreateUserDto, res: any) {
+  async signin(loginUserDto: LoginUserDto, res: any) {
     //check if email and password is avaiable
-    const { email, password } = createUserDto;
+    const { email, password } = loginUserDto;
     if (!email || !password) {
       throw new BadRequestException('Please provide your Email and Password');
     }
 
     //check if email(user) exits and if the password is correct
     const user = await this.userModel.findOne({ email }).select('+password');
-    const checkPassword = await user.correctPassword(password, user.password);
-    if (!user || !checkPassword) {
+    if (!user || !(await user.correctPassword(password, user.password))) {
       throw new UnauthorizedException('Invalid Email or Password');
     }
 
     user.password = undefined;
     this.tokenService.createSendToken(user, 200, res);
+  }
+
+  //PROTECT ROUTES
+  verifyToken(token: string): any {
+    try {
+      return jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      throw new Error('Invalid token');
+    }
   }
 }
