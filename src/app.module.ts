@@ -3,10 +3,15 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
+const db = process.env.CONNECTION_STRING
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb+srv://abadijerry44:M23rR7KnTK90zOBA@natourcluster.jfbbiwz.mongodb.net/?retryWrites=true&w=majority&appName=NatourCluster'),
+    MongooseModule.forRoot(db),
     AuthModule,
     UserModule,
   ],
