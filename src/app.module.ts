@@ -7,7 +7,7 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-const db = process.env.CONNECTION_STRING
+const db = process.env.MONGO_URI;
 
 @Module({
   imports: [

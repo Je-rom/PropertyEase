@@ -11,6 +11,7 @@ import { CreateUserDto } from 'src/user/dto/CreateUser.dto';
 import { LoginUserDto } from 'src/user/dto/LoginUser.dto';
 import * as jwt from 'jsonwebtoken';
 import { updatePasswordDto } from 'src/user/dto/updatePassword.dto';
+import { Response as ExpressResponse } from 'express';
 
 @Injectable({})
 export class AuthService {
@@ -23,7 +24,7 @@ export class AuthService {
   async signup(createUserDto: CreateUserDto, res: any): Promise<void> {
     const createdUser = new this.userModel(createUserDto);
     await createdUser.save();
-    this.tokenService.createSendToken(createdUser, 200, res);
+    this.tokenService.createSendToken(createdUser, 201, res);
   }
 
   //SIGN IN
@@ -45,26 +46,34 @@ export class AuthService {
   }
 
   //UPDATE PASSWORD
-  async updatePassword(updatePasswordDto: updatePasswordDto ,id:string, res: any){
+  async updatePassword(
+    updatePasswordDto: updatePasswordDto,
+    id: string,
+    res: ExpressResponse,
+  ) {
     //get user
-    const user = await this.userModel.findById({id}).select('+password')
-    if(!user){
-      throw new UnauthorizedException('user not logged in please, log in')
+    const user = await this.userModel.findById(id).select('+password');
+    if (!user) {
+      throw new UnauthorizedException('user not logged in please, log in');
     }
 
     //check if the current password is correct
-    const {currentPassword} = updatePasswordDto
-    const checkPassowrd = await user.correctPassword(currentPassword, user.password)
-    if(!checkPassowrd){
-      throw new BadRequestException('your current password is wrong')
+    const { currentPassword } = updatePasswordDto;
+    const checkPassowrd = await user.correctPassword(
+      currentPassword,
+      user.password,
+    );
+    if (!checkPassowrd) {
+      throw new BadRequestException('your current password is wrong');
     }
 
     user.password = updatePasswordDto.password;
-    user.confirmPassword = updatePasswordDto.confirmPassword
 
     await user.save();
-    this.tokenService.createSendToken(user, 200, res)
+    this.tokenService.createSendToken(user, 200, res);
   }
+
+  //ROLES
 
 
   //PROTECT ROUTES
