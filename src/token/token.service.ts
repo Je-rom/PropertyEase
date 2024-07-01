@@ -27,9 +27,7 @@ export class TokenService {
     res.status(statusCode).json({
       status: 'success',
       jwtToken,
-      data: {
         user,
-      },
     });
   }
 }

@@ -1,3 +1,4 @@
+import { Prop } from '@nestjs/mongoose';
 import {
   IsOptional,
   IsString,
@@ -13,6 +14,6 @@ export class updateUserDto {
   @IsOptional()
   phoneNumber: number;
 
-  @IsOptional()
-  password: string;
+  @Prop()
+  profilePicture: string;
 }

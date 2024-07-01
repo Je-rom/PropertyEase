@@ -43,7 +43,7 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('User recently changed password! Please log in again.')
     }
   
-    return user;
+    request.user = user
   }
 
   private extractJwtFromRequest(request: any): string | null {

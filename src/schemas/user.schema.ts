@@ -15,8 +15,8 @@ export interface UserDocument extends Document {
   correctPassword(
     enteredPassword: string,
     userPassword: string,
-  ): Promise<boolean>;
-  changedPasswordAfter(JWTTimestamp): Promise<boolean>
+  ): Promise<boolean>
+  changedPasswordAfter(JWTTimestamp);
 }
 
 @Schema()
@@ -52,7 +52,7 @@ export class User {
   confirmPassword: string;
 
   @Prop()
-  photo: string;
+  profilePicture: string;
 
   @Prop()
   passwordChangedAt: Date;
@@ -91,10 +91,10 @@ UserSchema.pre('save', async function(next){
 })
 
 //check if password was changed after the token was issued
-UserSchema.methods.changedPasswordAfter = async function(JWTTimestamp): Promise<boolean>{
-  if(this. passwordChangedAt){
-    const changedTimeStamp = (this.passwordChangedAt.getTime()/1000, 10);
-    return JWTTimestamp < changedTimeStamp
+UserSchema.methods.changedPasswordAfter = async function(JWTTimestamp): Promise<boolean> {
+  if (this.passwordChangedAt) {
+    const changedTimeStamp = parseInt((this.passwordChangedAt.getTime() / 1000).toString(), 10);
+    return JWTTimestamp < changedTimeStamp;
   }
   return false;
 }
