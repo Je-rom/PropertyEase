@@ -13,6 +13,9 @@ import { userService } from './user.service';
 import mongoose from 'mongoose';
 import { updateUserDto } from './dto/UpdateUser.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
+import { Role } from 'src/auth/roles.enum';
 
 @Controller('users')
 export class UserController {
@@ -35,7 +38,8 @@ export class UserController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.PropertyOwner)
   async updateUser(
     @Param('id') id: string,
     @Body() updateuserDto: updateUserDto,

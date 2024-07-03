@@ -1,3 +1,4 @@
+import { Response as ExpressResponse } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { Injectable } from '@nestjs/common';
 
@@ -9,7 +10,7 @@ export class TokenService {
     });
   }
 
-  createSendToken(user: any, statusCode: number, res: any): void {
+  createSendToken(user: any, statusCode: number, res: ExpressResponse): void {
     const jwtToken = this.signToken(user.id);
     const cookieOptions = {
       expires: new Date(
@@ -27,7 +28,7 @@ export class TokenService {
     res.status(statusCode).json({
       status: 'success',
       jwtToken,
-        user,
+      user,
     });
   }
 }

@@ -18,6 +18,6 @@ import { userService } from 'src/user/user.service';
     TokenModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, TokenService],
+  providers: [AuthService, TokenService, userService],
 })
 export class AuthModule {}

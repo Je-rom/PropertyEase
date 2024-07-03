@@ -15,8 +15,8 @@ export interface UserDocument extends Document {
   correctPassword(
     enteredPassword: string,
     userPassword: string,
-  ): Promise<boolean>
-  changedPasswordAfter(JWTTimestamp);
+  ): Promise<boolean>;
+  changedPasswordAfter(JWTTimestamp: number): boolean;
 }
 
 @Schema()
@@ -82,27 +82,34 @@ UserSchema.methods.correctPassword = async function (
   return await bcrypt.compare(enteredPassword, userPassword);
 };
 
-UserSchema.pre('save', async function(next){
-  if(this.isModified('password') || this.isNew){
+UserSchema.pre('save', async function (next) {
+  if (this.isModified('password') || this.isNew) {
     return next();
   }
   this.passwordChangedAt = new Date(Date.now() - 1000);
   next();
-})
+});
+
 
 //check if password was changed after the token was issued
-UserSchema.methods.changedPasswordAfter = async function(JWTTimestamp): Promise<boolean> {
+UserSchema.methods.changedPasswordAfter = function (
+  JWTTimestamp: number,
+): boolean {
   if (this.passwordChangedAt) {
-    const changedTimeStamp = parseInt((this.passwordChangedAt.getTime() / 1000).toString(), 10);
-    return JWTTimestamp < changedTimeStamp;
+    const changedTimestamp = this.passwordChangedAt.getTime() / 1000;
+    return JWTTimestamp < changedTimestamp;
   }
   return false;
-}
+};
 
 //create password reset token
-UserSchema.methods.createPasswordResetToken = async function(){
+UserSchema.methods.createPasswordResetToken = async function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
-  this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   return resetToken;
-}
+};
+
