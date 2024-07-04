@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Types } from "mongoose";
+import { ObjectId, Types } from "mongoose";
 import { User } from "./user.schema";
 import { Ref } from "@typegoose/typegoose";
 
+export type PropertyDocument = Property & Document;
 
 @Schema()
 export class Property{
@@ -33,14 +34,14 @@ export class Property{
     @Prop({required: true})
     coverImage: string
 
-    @Prop({type:[String],required: true})
+    @Prop({type:[String], required: true})
     image: string[]
 
     @Prop({ required: true, default: true })
     isAvailable: boolean;
 
-    @Prop()
-    geolocation: {latitude: number; longitude: number};
+    // @Prop({})
+    // geolocation: {latitude: number; longitude: number};
 
     @Prop({ required: true, default: Date.now })
     dateListed: Date;

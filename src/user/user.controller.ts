@@ -23,6 +23,7 @@ export class UserController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
+  @Roles(Role.PropertyOwner)
   async getUsers() {
     return await this.userService.getAllUsers();
   }

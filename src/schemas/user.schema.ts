@@ -31,8 +31,7 @@ export class User {
   phoneNumber: number;
 
   @Prop({
-    enum: ['PropertyOwner', 'Tenant'],
-    default: 'Tenant',
+    enum: ['PropertyOwner', 'Tenant'], required:true
   })
   role: string;
 
@@ -112,4 +111,3 @@ UserSchema.methods.createPasswordResetToken = async function () {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   return resetToken;
 };
-

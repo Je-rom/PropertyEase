@@ -17,5 +17,6 @@ import { TokenService } from 'src/token/token.service';
   ],
   controllers: [UserController],
   providers: [userService, AuthService, TokenService],
+  exports: [userService, MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
 })
 export class UserModule {}
