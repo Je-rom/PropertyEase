@@ -31,7 +31,8 @@ export class User {
   phoneNumber: number;
 
   @Prop({
-    enum: ['PropertyOwner', 'Tenant'], required:true
+    enum: ['PropertyOwner', 'Tenant'],
+    required: true,
   })
   role: string;
 
@@ -88,7 +89,6 @@ UserSchema.pre('save', async function (next) {
   this.passwordChangedAt = new Date(Date.now() - 1000);
   next();
 });
-
 
 //check if password was changed after the token was issued
 UserSchema.methods.changedPasswordAfter = function (

@@ -1,8 +1,5 @@
 import { Prop } from '@nestjs/mongoose';
-import {
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class updateUserDto {
   @IsOptional()
@@ -14,6 +11,6 @@ export class updateUserDto {
   @IsOptional()
   phoneNumber: number;
 
-  @Prop()
+  @IsOptional()
   profilePicture: string;
 }
