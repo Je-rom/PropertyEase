@@ -72,4 +72,9 @@ export class PropertyService {
   async deleteProperty(propertyId: string) {
     return await this.propertyModel.findByIdAndDelete(propertyId);
   }
+
+  //delete property by user id
+  // async deletePropertiesByUserId(userId: string) {
+  //   return await this.propertyModel.deleteMany({ userId });
+  // }
 }

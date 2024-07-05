@@ -19,5 +19,3 @@ const db = process.env.CONNECTION_STRING;
   ],
 })
 export class AppModule {}
-
-//mongodb://localhost:27017/

@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpException,
   Param,
   Patch,
   Post,
@@ -18,11 +20,13 @@ import { UpdatePropertyDto } from './dto/UpdateProperty.dto';
 import { UserDocument } from 'src/schemas/user.schema';
 import { Property } from 'src/schemas/property.schema';
 import { CustomRequest } from 'src/custom-request.interface';
+import mongoose from 'mongoose';
 
 @Controller('property')
 export class PropertyController {
   constructor(private readonly propertyService: PropertyService) {}
 
+  //create property
   @Post('create')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.PropertyOwner)
@@ -36,6 +40,15 @@ export class PropertyController {
     );
   }
 
+  //get all properties
+  @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.PropertyOwner, Role.Tenant)
+  async getAllProperties() {
+    return await this.propertyService.getProperties();
+  }
+
+  //update property by ID
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.PropertyOwner)
@@ -45,17 +58,34 @@ export class PropertyController {
     @Req() req: CustomRequest,
   ): Promise<Property> {
     const user = req.user as UserDocument;
-    return await this.propertyService.updateProperty(
+    //check if user still exists
+    if (!user) {
+      throw new HttpException('user not found', 400);
+    }
+    const isValid = mongoose.Types.ObjectId.isValid(id);
+    if (!id) {
+      throw new HttpException('invalid property id', 400);
+    }
+    const updateProperty = await this.propertyService.updateProperty(
       id,
       updatePropertyDto,
       user,
     );
+    return updateProperty;
   }
 
-  @Get()
+  //delete property
+  @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.PropertyOwner, Role.Tenant)
-  async getAllProperties() {
-    return await this.propertyService.getProperties();
+  @Roles(Role.PropertyOwner)
+  async deleteProperty(@Param('id') id: string) {
+    const isValid = mongoose.Types.ObjectId.isValid(id);
+    if (!isValid) {
+      throw new HttpException('invalid id', 400);
+    }
+    const deleteProperty = await this.propertyService.deleteProperty(id);
+    if (!deleteProperty) {
+      throw new HttpException('property not found', 404);
+    }
   }
 }
