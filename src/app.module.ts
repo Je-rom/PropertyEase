@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import * as dotenv from 'dotenv';
 import { PropertyModule } from './property/property.module';
+import { BookingModule } from './bookings/booking.module';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ const db = process.env.CONNECTION_STRING;
     AuthModule,
     UserModule,
     PropertyModule,
+    BookingModule
   ],
 })
 export class AppModule {}
