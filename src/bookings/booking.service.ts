@@ -11,6 +11,7 @@ import { UserDocument } from "src/schemas/user.schema";
 export class BookingService{
     constructor(@InjectModel(Booking.name) private bookingModel: Model<Booking>, @InjectModel(Property.name) private propertyModel: Model<PropertyDocument> ){}
 
+    //create booking request
     async createBooking(createBookingDto: BookingRequestDto, tenant: UserDocument ): Promise<Booking>{
         const { property, startDate, endDate, transactionType } = createBookingDto;
 
@@ -19,6 +20,10 @@ export class BookingService{
     if (!propertyDoc) {
       throw new BadRequestException('Property does not exist');
     }
+
+    if (!propertyDoc.isAvailable) {
+        throw new BadRequestException('Property is unavailable');
+      }
 
     //check if the property type matches the transaction type
     if (
@@ -61,6 +66,10 @@ export class BookingService{
     await booking.save();
 
     return booking;
-
     }
+
+    //get all booking request
+  async getAllProperty(){
+    return await this.propertyModel.find()
+  }
 }

@@ -10,6 +10,9 @@ export class Booking{
     @Prop({type: Types.ObjectId, ref: 'User', required: true})
     tenant: Ref<User>
 
+    @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+    owner: User;
+
     @Prop({type: Types.ObjectId, ref: 'Property', required: true})
     property: Ref<Property>
 
