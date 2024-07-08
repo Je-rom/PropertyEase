@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { Booking } from "src/schemas/booking.schema";
+import { isObjectIdOrHexString, Model, Types } from "mongoose";
+import { Booking, BookingDocument } from "src/schemas/booking.schema";
 import { Property, PropertyDocument } from "src/schemas/property.schema";
 import { BookingRequestDto } from "./dto/BookingRequest.dto";
 import { UserDocument } from "src/schemas/user.schema";
@@ -9,7 +9,7 @@ import { UserDocument } from "src/schemas/user.schema";
 
 @Injectable()
 export class BookingService{
-    constructor(@InjectModel(Booking.name) private bookingModel: Model<Booking>, @InjectModel(Property.name) private propertyModel: Model<PropertyDocument> ){}
+    constructor(@InjectModel(Booking.name) private bookingModel: Model<BookingDocument>, @InjectModel(Property.name) private propertyModel: Model<PropertyDocument> ){}
 
     //create booking request
     async createBooking(createBookingDto: BookingRequestDto, tenant: UserDocument ): Promise<Booking>{
@@ -68,8 +68,19 @@ export class BookingService{
     return booking;
     }
 
-    //get all booking request
+  //get all booking request
   async getAllProperty(){
-    return await this.propertyModel.find()
+    return await this.bookingModel.find()
+  }
+
+  async getBookingsByUser(userId: string) {
+    try {
+      const bookings = await this.bookingModel
+        .find({ tenant: new Types.ObjectId(userId) });
+      return bookings;
+    } catch (error) {
+      console.error('Error finding bookings:', error);
+      throw error;
+    }
   }
 }

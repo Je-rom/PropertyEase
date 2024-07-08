@@ -28,4 +28,12 @@ export class BookingController{
     async getBookings(){
       return this.bookingService.getAllProperty()
     }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Get('user')
+  @Roles(Role.Tenant)
+  async getUserBookings(@Req() req: CustomRequest) {
+    const userId = req.user.id;
+    return this.bookingService.getBookingsByUser(userId);
+  }
 }
