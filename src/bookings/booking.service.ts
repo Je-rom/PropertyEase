@@ -1,6 +1,6 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { Booking } from "src/schemas/booking.schema";
 import { Property, PropertyDocument } from "src/schemas/property.schema";
 import { BookingRequestDto } from "./dto/BookingRequest.dto";
@@ -75,8 +75,30 @@ export class BookingService{
     return booking;
   }
 
-    //get all booking request
-  async getAllProperty(){
-    return await this.propertyModel.find()
+  //get all booking request
+  async getAllBookings(){
+    return await this.bookingModel.find()
+  }
+
+  //get bookings for a user
+  async getBookingsForUser(userId: string){
+    const booking = await this.bookingModel.find({tenant: new Types.ObjectId(userId)})
+    return booking;
+  }
+
+  //delete bookings
+  async deleteBookingForUser(bookingId: string, userId: string){
+    //check for booking Id
+    const tenantBookingId = await this.bookingModel.findById(bookingId);
+    if(!tenantBookingId){
+      throw new NotFoundException('Booking not found');
+    }
+
+    if(tenantBookingId.tenant.toString() !== userId){
+      throw new UnauthorizedException('This is not your booking, You do not have permission to delete this booking');
+    }
+
+    await this.bookingModel.findByIdAndDelete(tenantBookingId)
+    return { message: 'Booking deleted successfully' };
   }
 }

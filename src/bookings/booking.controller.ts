@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -16,7 +17,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Role } from 'src/auth/roles.enum';
-import { Response, request } from 'express';
+import { Response } from 'express';
 
 @Controller('booking')
 export class BookingController {
@@ -39,7 +40,25 @@ export class BookingController {
   }
 
     @Get()
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    // @Roles(Role.PropertyOwner)
     async getBookings(){
-      return this.bookingService.getAllProperty()
+      return await this.bookingService.getAllBookings()
+    }
+
+    @Get('user')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.Tenant)
+    async getBookingsForUser(@Req() Request: CustomRequest ){
+      const tenantId = Request.user.id
+      return await this.bookingService.getBookingsForUser(tenantId)
+    }
+
+    @Delete(':id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.Tenant)
+    async deleteBookingForUser(@Param('id') bookingId: string, @Req() Request: CustomRequest){
+      const tenantId = Request.user.id
+      return await this.bookingService.deleteBookingForUser(bookingId, tenantId)
     }
 }
