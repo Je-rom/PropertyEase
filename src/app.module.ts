@@ -17,7 +17,7 @@ const db = process.env.CONNECTION_STRING;
     AuthModule,
     UserModule,
     PropertyModule,
-    BookingModule
+    BookingModule,
   ],
 })
 export class AppModule {}

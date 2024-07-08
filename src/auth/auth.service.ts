@@ -75,7 +75,6 @@ export class AuthService {
 
   //ROLES
 
-
   //PROTECT ROUTES
   verifyToken(token: string): any {
     try {
