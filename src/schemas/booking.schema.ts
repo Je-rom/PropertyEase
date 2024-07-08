@@ -4,30 +4,32 @@ import { User } from "./user.schema";
 import { Ref } from "@typegoose/typegoose";
 import { Property } from "./property.schema";
 
-export type BookingDocument = Booking & Document;
 
 @Schema()
 export class Booking{
     @Prop({type: Types.ObjectId, ref: 'User', required: true})
     tenant: Ref<User>
 
-    @Prop({type: Types.ObjectId, ref: 'Property', required: true})
-    property: Ref<Property>
+    @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+    owner: User;
 
-    @Prop()
-    startDate?: Date;
+  @Prop({ type: Types.ObjectId, ref: 'Property', required: true })
+  property: Ref<Property>;
 
-    @Prop()
-    endDate?: Date;
+  @Prop()
+  startDate?: Date;
 
-    @Prop({default: 'Pending', enum: ['Pending', 'Approved', 'Rejected']})
-    status: string;
+  @Prop()
+  endDate?: Date;
 
-    @Prop({required: true, enum:['Rent', 'Purchase']})
-    transactionType: string;
+  @Prop({ default: 'Pending', enum: ['Pending', 'Approved', 'Rejected'] })
+  status: string;
 
-    @Prop({ default: Date.now })
-    dateRequested: Date;
+  @Prop({ required: true, enum: ['Rent', 'Purchase'] })
+  transactionType: string;
+
+  @Prop({ default: Date.now })
+  dateRequested: Date;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);
