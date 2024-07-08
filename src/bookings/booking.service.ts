@@ -5,6 +5,7 @@ import { Booking } from "src/schemas/booking.schema";
 import { Property, PropertyDocument } from "src/schemas/property.schema";
 import { BookingRequestDto } from "./dto/BookingRequest.dto";
 import { UserDocument } from "src/schemas/user.schema";
+import {updateBookingDto} from 'src/bookings/dto/UpdateBookingRequest.dto'
 
 
 @Injectable()
@@ -100,5 +101,39 @@ export class BookingService{
 
     await this.bookingModel.findByIdAndDelete(tenantBookingId)
     return { message: 'Booking deleted successfully' };
+  }
+
+  //update bookings
+  async updateBookingsForUser(updateBookingDto: updateBookingDto,bookingId: string, userId: string): Promise<Booking>{
+    //check for booking Id
+    const booking = await this.bookingModel.findById(bookingId);
+    if(!booking){
+      throw new NotFoundException('Booking not found');
+    }
+
+    if(booking.tenant.toString() !== userId){
+      throw new UnauthorizedException('This is not your booking, You do not have permission to update this booking');
+    }
+
+    //fetch the associated property
+    const property = await this.propertyModel.findById(booking.property);
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+
+    //validate the transactionType
+    if (updateBookingDto.transactionType) {
+      if (
+        (updateBookingDto.transactionType === 'Rent' && property.type !== 'Rent') ||
+        (updateBookingDto.transactionType === 'Sale' && property.type !== 'Sale')
+      ) {
+        throw new BadRequestException('Invalid transaction type for this property');
+      }
+    }
+
+    //update the property fields with the provided data
+    Object.assign(booking, updateBookingDto)
+    await booking.save();
+    return  booking;
   }
 }

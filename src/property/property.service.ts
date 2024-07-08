@@ -55,7 +55,7 @@ export class PropertyService {
       throw new UnauthorizedException('You are not the owner of this property');
     }
 
-    //update the property fields with the provided data
+    //update the property fields with the  data
     Object.assign(property, UpdatePropertyDto);
 
     await property.save();

@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 import { IsNotEmpty, IsOptional, IsDateString, IsEnum } from 'class-validator';
 
-export class BookingRequestDto {
+export class updateBookingDto {
 
   @IsOptional()
   @IsDateString()
