@@ -20,7 +20,8 @@ import { UpdatePropertyDto } from './dto/UpdateProperty.dto';
 import { UserDocument } from 'src/schemas/user.schema';
 import { Property } from 'src/schemas/property.schema';
 import { CustomRequest } from 'src/custom-request.interface';
-import mongoose from 'mongoose';
+import mongoose, { Query } from 'mongoose';
+import { ApiFeatures } from './../apiFeatures/apiFeatures';
 
 @Controller('property')
 export class PropertyController {
@@ -44,8 +45,18 @@ export class PropertyController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.PropertyOwner, Role.Tenant)
-  async getAllProperties() {
-    return await this.propertyService.getProperties();
+  async getAllProperties(@Req() req: CustomRequest) {
+    const query = req.query;
+    const features = new ApiFeatures(
+      this.propertyService.getProperties(),
+      query,
+    )
+      .filter()
+      .sort()
+      .paginate()
+      .limitFields();
+    const properties = await features.query.exec();
+    return properties;
   }
 
   //update property by ID
