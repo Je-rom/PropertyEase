@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
   IsArray,
   IsBoolean,
   IsEmail,
@@ -54,11 +55,7 @@ export class CreatePropertyDto {
   @IsNotEmpty({ message: 'Please add a cover image of the property' })
   coverImage: string;
 
-  @IsArray({ message: 'Images must be an array of strings' })
-  @IsNotEmpty({ message: 'Please add an image or images of the property' })
-  @IsString({ each: true })
-  image: string[];
-
+  @ArrayMaxSize(8, { message: 'You can add up to 8 images' })
   @IsNotEmpty({ message: 'Please give a availability status of the property' })
   @IsBoolean()
   isAvailable: boolean;
