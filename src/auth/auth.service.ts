@@ -12,6 +12,7 @@ import { LoginUserDto } from 'src/user/dto/LoginUser.dto';
 import * as jwt from 'jsonwebtoken';
 import { updatePasswordDto } from 'src/user/dto/updatePassword.dto';
 import { Response as ExpressResponse } from 'express';
+import { AppError } from 'src/exceptions/app-error';
 
 @Injectable({})
 export class AuthService {
@@ -21,11 +22,20 @@ export class AuthService {
   ) {}
 
   //SIGN UP
-  async signup(createUserDto: CreateUserDto, res: any): Promise<void> {
-    const createdUser = new this.userModel(createUserDto);
-    await createdUser.save();
-    this.tokenService.createSendToken(createdUser, 201, res);
+  async signup(createUserDto: CreateUserDto, res: any){
+    try {
+      const createdUser = new this.userModel(createUserDto);
+      await createdUser.save();
+      return createdUser;
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new AppError('Duplicate field value. Please use another value!', 400);
+      } else {
+        throw new AppError('Internal server error', 500);
+      }
+    }
   }
+  
 
   //SIGN IN
   async signin(loginUserDto: LoginUserDto, res: any) {
