@@ -83,7 +83,8 @@ export class AuthService {
     this.tokenService.createSendToken(user, 200, res);
   }
 
-  //ROLES
+  //FORGOT PASSWORD
+  
 
   //PROTECT ROUTES
   verifyToken(token: string): any {

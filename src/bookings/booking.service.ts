@@ -1,16 +1,23 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model, Types } from "mongoose";
-import { Booking } from "src/schemas/booking.schema";
-import { Property, PropertyDocument } from "src/schemas/property.schema";
-import { BookingRequestDto } from "./dto/BookingRequest.dto";
-import { UserDocument } from "src/schemas/user.schema";
-import {updateBookingDto} from 'src/bookings/dto/UpdateBookingRequest.dto'
-
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Query, Types } from 'mongoose';
+import { Booking } from 'src/schemas/booking.schema';
+import { Property, PropertyDocument } from 'src/schemas/property.schema';
+import { BookingRequestDto } from './dto/BookingRequest.dto';
+import { UserDocument } from 'src/schemas/user.schema';
+import { updateBookingDto } from 'src/bookings/dto/UpdateBookingRequest.dto';
 
 @Injectable()
-export class BookingService{
-    constructor(@InjectModel(Booking.name) private bookingModel: Model<Booking>, @InjectModel(Property.name) private propertyModel: Model<PropertyDocument> ){}
+export class BookingService {
+  constructor(
+    @InjectModel(Booking.name) private bookingModel: Model<Booking>,
+    @InjectModel(Property.name) private propertyModel: Model<PropertyDocument>,
+  ) {}
 
   //create booking request
   async createBooking(
@@ -77,42 +84,52 @@ export class BookingService{
   }
 
   //get all booking request
-  async getAllBookings(){
-    return await this.bookingModel.find()
+  getAllBookings(): Query<Booking[], Booking> {
+    return this.bookingModel.find();
   }
 
   //get bookings for a user
-  async getBookingsForUser(userId: string){
-    const booking = await this.bookingModel.find({tenant: new Types.ObjectId(userId)})
+  getBookingsForUser(userId: string): Query<Booking[], Booking> {
+    const booking = this.bookingModel.find({
+      tenant: new Types.ObjectId(userId),
+    });
     return booking;
   }
 
   //delete bookings
-  async deleteBookingForUser(bookingId: string, userId: string){
+  async deleteBookingForUser(bookingId: string, userId: string) {
     //check for booking Id
     const tenantBookingId = await this.bookingModel.findById(bookingId);
-    if(!tenantBookingId){
+    if (!tenantBookingId) {
       throw new NotFoundException('Booking not found');
     }
 
-    if(tenantBookingId.tenant.toString() !== userId){
-      throw new UnauthorizedException('This is not your booking, You do not have permission to delete this booking');
+    if (tenantBookingId.tenant.toString() !== userId) {
+      throw new UnauthorizedException(
+        'This is not your booking, You do not have permission to delete this booking',
+      );
     }
 
-    await this.bookingModel.findByIdAndDelete(tenantBookingId)
+    await this.bookingModel.findByIdAndDelete(tenantBookingId);
     return { message: 'Booking deleted successfully' };
   }
 
   //update bookings
-  async updateBookingsForUser(updateBookingDto: updateBookingDto,bookingId: string, userId: string): Promise<Booking>{
+  async updateBookingsForUser(
+    updateBookingDto: updateBookingDto,
+    bookingId: string,
+    userId: string,
+  ): Promise<Booking> {
     //check for booking Id
     const booking = await this.bookingModel.findById(bookingId);
-    if(!booking){
+    if (!booking) {
       throw new NotFoundException('Booking not found');
     }
 
-    if(booking.tenant.toString() !== userId){
-      throw new UnauthorizedException('This is not your booking, You do not have permission to update this booking');
+    if (booking.tenant.toString() !== userId) {
+      throw new UnauthorizedException(
+        'This is not your booking, You do not have permission to update this booking',
+      );
     }
 
     //fetch the associated property
@@ -124,16 +141,20 @@ export class BookingService{
     //validate the transactionType
     if (updateBookingDto.transactionType) {
       if (
-        (updateBookingDto.transactionType === 'Rent' && property.type !== 'Rent') ||
-        (updateBookingDto.transactionType === 'Sale' && property.type !== 'Sale')
+        (updateBookingDto.transactionType === 'Rent' &&
+          property.type !== 'Rent') ||
+        (updateBookingDto.transactionType === 'Purchase' &&
+          property.type !== 'Sale')
       ) {
-        throw new BadRequestException('Invalid transaction type for this property');
+        throw new BadRequestException(
+          'Invalid transaction type for this property',
+        );
       }
     }
 
     //update the property fields with the provided data
-    Object.assign(booking, updateBookingDto)
+    Object.assign(booking, updateBookingDto);
     await booking.save();
-    return  booking;
+    return booking;
   }
 }

@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Query } from 'mongoose';
 import { Property, PropertyDocument } from 'src/schemas/property.schema';
 import { CreatePropertyDto } from './dto/CreateProperty.dto';
 import { UserDocument } from 'src/schemas/user.schema';
@@ -64,8 +64,8 @@ export class PropertyService {
   }
 
   //get all properties
-  async getProperties() {
-    return await this.propertyModel.find();
+  getProperties(): Query<PropertyDocument[], PropertyDocument> {
+    return this.propertyModel.find();
   }
 
   //delete property
