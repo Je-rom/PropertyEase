@@ -28,14 +28,13 @@ export class AuthService {
       await createdUser.save();
       return createdUser;
     } catch (error) {
-      if (error.code === 11000) {
-        throw new AppError('Duplicate field value. Please use another value!', 400);
+      if (error.code === 11000 && error.keyPattern && error.keyPattern.hasOwnProperty('email')) {
+        throw new AppError('Duplicate email found. Please use another email.', 400);
       } else {
         throw new AppError('Internal server error', 500);
       }
     }
   }
-  
 
   //SIGN IN
   async signin(loginUserDto: LoginUserDto, res: any) {

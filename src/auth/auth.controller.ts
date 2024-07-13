@@ -21,14 +21,7 @@ export class AuthController {
 
   @Post('signup')
   async signup(@Body() createUserDto: CreateUserDto, @Res() res) {
-    try {
-      const user = await this.authService.signup(createUserDto, res);
-    } catch (error) {
-      res.status(error.statusCode || 500).json({
-        status: error.status || 'error',
-        message: error.message || 'Internal server error',
-      });
-    }
+    return await this.authService.signup(createUserDto, res);
   }
 
   @Post('signin')
