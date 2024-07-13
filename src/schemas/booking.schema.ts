@@ -14,10 +14,10 @@ export class Booking{
   property: Ref<Property>;
 
   @Prop()
-  startDate?: Date;
+  checkInDate?: Date;
 
   @Prop()
-  endDate?: Date;
+  checkOutDate?: Date;
 
   @Prop({ default: 'Pending', enum: ['Pending', 'Approved', 'Rejected'] })
   status: string;

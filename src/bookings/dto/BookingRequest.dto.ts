@@ -7,11 +7,11 @@ export class BookingRequestDto {
 
   @IsOptional()
   @IsDateString()
-  startDate: Date;
+  checkInDate: Date;
 
   @IsOptional()
   @IsDateString()
-  endDate: Date;
+  checkOutDate: Date;
 
   @IsNotEmpty()
   @IsEnum(['Rent', 'Purchase'])
