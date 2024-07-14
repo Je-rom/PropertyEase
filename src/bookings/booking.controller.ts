@@ -95,7 +95,6 @@ export class BookingController {
     if (!bookingId) {
       throw new HttpException('invalid booking id', 400);
     }
-
     const updateBookig = await this.bookingService.updateBookingsForUser(
       updateBookingDto,
       bookingId,
@@ -118,7 +117,20 @@ export class BookingController {
     if (!bookingId) {
       throw new HttpException('invalid booking id', 400);
     }
-
     return await this.bookingService.deleteBookingForUser(bookingId, tenantId);
+  }
+
+  @Patch(':id/approve')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.PropertyOwner)
+  async approve(@Param('id') id: string){
+    return this.bookingService.approveBooking(id);
+  }
+
+  @Patch(':id/reject')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.PropertyOwner)
+  async reject(@Param('id') id: string){
+    return this.bookingService.rejectBooking(id);
   }
 }

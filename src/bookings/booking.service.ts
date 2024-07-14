@@ -157,4 +157,28 @@ export class BookingService {
     await booking.save();
     return booking;
   }
+
+  async approveBooking(bookingId: string): Promise<Booking> {
+    const booking = await this.bookingModel.findById(bookingId);
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+    if (booking.status !== 'Pending') {
+      throw new BadRequestException('Booking is not pending');
+    }
+    booking.status = 'Approved';
+    return booking.save();
+  }
+
+  async rejectBooking(bookingId: string): Promise<Booking> {
+    const booking = await this.bookingModel.findById(bookingId);
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+    if (booking.status !== 'Pending') {
+      throw new BadRequestException('Booking is not pending');
+    }
+    booking.status = 'Rejected';
+    return booking.save();
+  }
 }
