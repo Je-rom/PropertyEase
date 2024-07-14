@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import * as dotenv from 'dotenv';
 import { PropertyModule } from './property/property.module';
 import { BookingModule } from './bookings/booking.module';
+import { PaymentModule } from './payments/payments.module';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ const db = process.env.CONNECTION_STRING;
     UserModule,
     PropertyModule,
     BookingModule,
+    PaymentModule,
   ],
 })
 export class AppModule {}

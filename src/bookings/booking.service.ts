@@ -24,7 +24,7 @@ export class BookingService {
     createBookingDto: BookingRequestDto,
     tenant: UserDocument,
   ): Promise<Booking> {
-    const { property, startDate, endDate, transactionType } = createBookingDto;
+    const { property, checkInDate, checkOutDate, transactionType } = createBookingDto;
 
     //check if the property exists and is available
     const propertyDoc = await this.propertyModel.findById(property);
@@ -48,7 +48,7 @@ export class BookingService {
 
     //validate dates for rental transactions
     if (transactionType === 'Rent') {
-      if (!startDate || !endDate) {
+      if (!checkInDate || !checkOutDate) {
         throw new BadRequestException(
           'Start date and end date are required for rentals',
         );
@@ -71,8 +71,8 @@ export class BookingService {
     const booking = new this.bookingModel({
       tenant: tenant._id,
       property,
-      startDate,
-      endDate,
+      checkInDate,
+      checkOutDate,
       transactionType,
       status: 'Pending',
       dateRequested: new Date(),

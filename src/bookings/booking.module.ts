@@ -9,12 +9,16 @@ import { AuthService } from 'src/auth/auth.service';
 import { TokenService } from 'src/token/token.service';
 import { userService } from 'src/user/user.service';
 import { UserModule } from 'src/user/user.module';
+import { Payment, PaymentSchema } from 'src/schemas/payment.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Booking.name, schema: BookingSchema }]),
     MongooseModule.forFeature([
       { name: Property.name, schema: PropertySchema },
+    ]),
+    MongooseModule.forFeature([
+      { name: Payment.name, schema: PaymentSchema },
     ]),
     UserModule,
   ],
