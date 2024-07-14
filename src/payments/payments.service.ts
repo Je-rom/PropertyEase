@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Booking } from "src/schemas/booking.schema";
@@ -13,6 +13,7 @@ export class PaymentService{
     private readonly paystackService: PaystackService){}
 
     async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
+      try {
         const booking = await this.BookingModel.findById(createPaymentDto.booking);
         if (!booking) {
           throw new NotFoundException('Booking not found');
@@ -20,17 +21,22 @@ export class PaymentService{
         if (booking.status !== 'Approved') {
           throw new BadRequestException('Booking is not approved');
         }
-    
+        
+        const reference = `ref_${Date.now()}`;
         const paymentData = await this.paystackService.initializePayment(
           createPaymentDto.email,
-          createPaymentDto.amount
+          createPaymentDto.amount,
+          createPaymentDto.booking,
+          createPaymentDto.method,
+          reference
         );
         
         const payment = new this.PaymentModel({
           ...createPaymentDto,
           status: 'Pending',
           date: new Date(),
-          method: paymentData.authorization_url,
+          method: createPaymentDto.method,
+          currency: 'NGN',
         });
     
         const savedPayment = await payment.save();
@@ -38,6 +44,11 @@ export class PaymentService{
         await booking.save();
     
         return savedPayment;
+        
+      } catch (error) {
+        Logger.error(`Error creating payment: ${error.message}`, error.stack, 'PaymentService');
+        throw new BadRequestException('Failed to create payment');
+      }
       }
 
       async verifyPayment(reference: string): Promise<Payment> {
@@ -53,5 +64,32 @@ export class PaymentService{
           payment.status = 'Failed';
         }
         return payment.save();
+      }
+
+      async updatePaymentStatus(reference: string, status: string): Promise<Payment> {
+        const payment = await this.PaymentModel.findOneAndUpdate(
+          { reference },
+          { $set: { status: status === 'success' ? 'Completed' : 'Failed' } },
+          { new: true },
+        );
+        if (!payment) {
+          throw new NotFoundException('Payment not found');
+        }
+        return payment;
+      }
+
+      async processPaymentCallback(trxref: string, reference: string): Promise<any> {
+        try {
+          const paymentData = await this.paystackService.verifyPayment(reference);
+          const updatedPayment = await this.updatePaymentStatus(reference, paymentData.status);
+          const payment = await this.PaymentModel.findOne({ reference });
+          if (!payment) {
+            throw new NotFoundException('Payment not found in database');
+          }
+          return { message: 'Callback processed successfully', payment: updatedPayment };
+        } catch (error) {
+          console.error('Error processing payment callback:', error);
+          throw new BadRequestException('Error processing payment callback');
+        }
       }
 }

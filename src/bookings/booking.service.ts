@@ -159,15 +159,21 @@ export class BookingService {
   }
 
   async approveBooking(bookingId: string): Promise<Booking> {
+    console.log(`Approving booking with ID: ${bookingId}`);
     const booking = await this.bookingModel.findById(bookingId);
     if (!booking) {
+      console.error('Booking not found');
       throw new NotFoundException('Booking not found');
     }
     if (booking.status !== 'Pending') {
+      console.error('Booking is not pending');
       throw new BadRequestException('Booking is not pending');
     }
     booking.status = 'Approved';
-    return booking.save();
+    console.log('Booking status set to Approved');
+    const savedBooking = await booking.save();
+    console.log('Booking saved:', savedBooking);
+    return savedBooking;
   }
 
   async rejectBooking(bookingId: string): Promise<Booking> {

@@ -14,12 +14,8 @@ import { Payment, PaymentSchema } from 'src/schemas/payment.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Booking.name, schema: BookingSchema }]),
-    MongooseModule.forFeature([
-      { name: Property.name, schema: PropertySchema },
-    ]),
-    MongooseModule.forFeature([
-      { name: Payment.name, schema: PaymentSchema },
-    ]),
+    MongooseModule.forFeature([{ name: Property.name, schema: PropertySchema }]),
+    MongooseModule.forFeature([{ name: Payment.name, schema: PaymentSchema }]),
     UserModule,
   ],
   controllers: [BookingController],

@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import { AllExceptionsFilter } from './exceptions/all-exceptions.filter';
 
@@ -8,8 +8,11 @@ dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Bootstrap');
+  app.useLogger(logger);
   app.useGlobalPipes(new ValidationPipe()); //validation, registers pipes as global pipes (will be used within every HTTP route handler)
-  app.useGlobalFilters(new AllExceptionsFilter());
+  // app.useGlobalFilters(new AllExceptionsFilter());
   await app.listen(3333);
+  logger.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

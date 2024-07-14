@@ -6,6 +6,7 @@ export class CreatePaymentDto {
   booking: string;
 
   @IsEmail()
+  @IsNotEmpty()
   email: string
 
   @IsNumber()
