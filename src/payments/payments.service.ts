@@ -12,6 +12,8 @@ import { PaystackService } from './PaystackService';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import axios from 'axios';
 import * as Paystack from 'paystack';
+import { Property, PropertyDocument } from 'src/schemas/property.schema';
+import { User, UserDocument } from 'src/schemas/user.schema';
 
 @Injectable()
 export class PaymentService {
@@ -20,15 +22,16 @@ export class PaymentService {
   constructor(
     @InjectModel(Payment.name) private PaymentModel: Model<Payment>,
     @InjectModel(Booking.name) private BookingModel: Model<Booking>,
+    @InjectModel(Property.name) private propertyModel: Model<PropertyDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly paystackService: PaystackService,
   ) {
     this.paystack = Paystack(this.SECRET_KEY);
   }
 
-  async initializePayment(
-    createPaymentDto: CreatePaymentDto,
-  ): Promise<Payment> {
+  async initializePayment(createPaymentDto: CreatePaymentDto): Promise<any> {
     try {
+      //find booking id
       const booking = await this.BookingModel.findById(
         createPaymentDto.booking,
       );
@@ -39,6 +42,30 @@ export class PaymentService {
         throw new BadRequestException('Booking is not approved');
       }
 
+      //check if a payment already exists for this booking
+      const existingPayment = await this.PaymentModel.findOne({
+        booking: createPaymentDto.booking,
+        status: { $in: ['Pending', 'Completed'] },
+      });
+
+      if (existingPayment) {
+        throw new BadRequestException(
+          'Payment already exists for this booking',
+        );
+      }
+
+      //check if the property still exists
+      const property = await this.propertyModel.findById(booking.property);
+      if (!property) {
+        throw new NotFoundException('Property not found');
+      }
+
+      //check if the owner still exists
+      const owner = await this.userModel.findById(property.owner);
+      if (!owner) {
+        throw new NotFoundException('Property owner not found');
+      }
+
       const reference = `ref_${Date.now()}`;
       const response = await axios.post(
         'https://api.paystack.co/transaction/initialize',
@@ -46,7 +73,8 @@ export class PaymentService {
           email: createPaymentDto.email,
           amount: createPaymentDto.amount * 100,
           reference,
-          callback_url: 'https://0d15acc6a3563a0efc46bccbd426ee7d.serveo.net/',
+          callback_url:
+            'https://cda2bf5d1dfdd144211520251672ca94.serveo.net/payment/callback',
         },
         {
           headers: {
@@ -77,7 +105,14 @@ export class PaymentService {
       booking.payment = savedPayment._id;
       await booking.save();
 
-      return savedPayment;
+      return {
+        payment: savedPayment,
+        paystack: response.data.data,
+        propertyOwner: {
+          name: owner.name,
+          email: owner.email,
+        },
+      };
     } catch (error) {
       Logger.error(
         `Error initializing payment: ${error.message}`,
