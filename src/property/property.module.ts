@@ -20,5 +20,11 @@ import { userService } from 'src/user/user.service';
   ],
   controllers: [PropertyController],
   providers: [PropertyService, AuthService, TokenService, userService],
+  exports: [
+    PropertyService,
+    MongooseModule.forFeature([
+      { name: Property.name, schema: PropertySchema },
+    ]),
+  ],
 })
 export class PropertyModule {}
