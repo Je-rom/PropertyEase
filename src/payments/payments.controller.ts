@@ -24,6 +24,6 @@ export class PaymentController{
     @Query('reference') reference: string,
   ): Promise<any> {
     const result = await this.paymentService.processPaymentCallback(trxref, reference);
-    return { message: 'Callback received', result };
+    return { message: 'Callback received', result }
   }
 }
