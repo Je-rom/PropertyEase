@@ -153,7 +153,7 @@ export class PaymentService {
     return payment;
   }
 
-  async processPaymentCallback(data: any): Promise<any> {
+  async processPaymentCallback(data: any, reference: string): Promise<any> {
     try {
       const { event, data: eventData } = data;
       if (event !== 'charge.success' || !eventData) {

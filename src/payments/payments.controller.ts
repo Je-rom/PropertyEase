@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -45,9 +46,15 @@ export class PaymentController {
   @UseGuards(JwtAuthGuard)
   @Roles(Role.Tenant)
   async handlePaymentWebhook(@Body() body: any): Promise<any> {
-    const result = await this.paymentService.processPaymentCallback(body);
+    const { event, data: eventData } = body;
+    if (event !== 'charge.success' || !eventData) {
+      throw new BadRequestException('Invalid webhook event or data');
+    }
+    const reference = eventData.reference;
+    const result = await this.paymentService.processPaymentCallback(body, reference);
     return { message: 'Webhook received', result };
   }
+  
 
   @Get('callback')
   @UseGuards(JwtAuthGuard)
