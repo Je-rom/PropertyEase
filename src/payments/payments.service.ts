@@ -29,6 +29,10 @@ export class PaymentService {
     this.paystack = Paystack(this.SECRET_KEY);
   }
 
+  async getPayments(){
+    return this.PaymentModel.find()
+  }
+
   async initializePayment(createPaymentDto: CreatePaymentDto): Promise<any> {
     try {
       //find booking id
@@ -74,7 +78,7 @@ export class PaymentService {
           amount: createPaymentDto.amount * 100,
           reference,
           callback_url:
-            'https://cda2bf5d1dfdd144211520251672ca94.serveo.net/payment/callback',
+            'https://e67dc63c57560fa8d0821c0ee4e687ba.serveo.net/payment/callback',
         },
         {
           headers: {
@@ -153,28 +157,62 @@ export class PaymentService {
     return payment;
   }
 
+  // async processPaymentCallback(data: any, reference: string): Promise<any> {
+  //   try {
+  //     const { event, data: eventData } = data;
+  //     if (event !== 'charge.success' || !eventData) {
+  //       throw new BadRequestException('Invalid webhook event or data');
+  //     }
+
+  //     const reference = eventData.reference;
+
+  //     // Verify payment status with Paystack
+  //     const paymentData = await this.paystackService.verifyPayment(reference);
+
+  //     // Update payment status based on verification result
+  //     const updatedPayment = await this.updatePaymentStatus(
+  //       reference,
+  //       paymentData.status,
+  //     );
+
+  //     if (!updatedPayment) {
+  //       throw new NotFoundException('Payment not found in database');
+  //     }
+
+  //     return {
+  //       message: 'Callback processed successfully',
+  //       payment: updatedPayment,
+  //     };
+  //   } catch (error) {
+  //     console.error('Error processing payment callback:', error);
+  //     throw new BadRequestException('Error processing payment callback');
+  //   }
+  // }
+
   async processPaymentCallback(data: any, reference: string): Promise<any> {
     try {
+      console.log('Received webhook data:', data); // Log incoming data
+  
       const { event, data: eventData } = data;
       if (event !== 'charge.success' || !eventData) {
         throw new BadRequestException('Invalid webhook event or data');
       }
-
-      const reference = eventData.reference;
-
+  
+      const paymentReference = eventData.reference;
+  
       // Verify payment status with Paystack
-      const paymentData = await this.paystackService.verifyPayment(reference);
-
+      const paymentData = await this.paystackService.verifyPayment(paymentReference);
+  
       // Update payment status based on verification result
       const updatedPayment = await this.updatePaymentStatus(
-        reference,
+        paymentReference,
         paymentData.status,
       );
-
+  
       if (!updatedPayment) {
         throw new NotFoundException('Payment not found in database');
       }
-
+  
       return {
         message: 'Callback processed successfully',
         payment: updatedPayment,
@@ -184,4 +222,5 @@ export class PaymentService {
       throw new BadRequestException('Error processing payment callback');
     }
   }
+  
 }
