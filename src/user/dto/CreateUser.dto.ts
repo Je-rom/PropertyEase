@@ -2,6 +2,7 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsPhoneNumber,
   IsString,
   Length,
@@ -37,4 +38,14 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Confirm Password is required' })
   @IsString()
   confirmPassword: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty({ message: 'Bank account number is required for PropertyOwner' })
+  bankAccountNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty({ message: 'Bank code is required for PropertyOwner' })
+  bankCode?: string;
 }

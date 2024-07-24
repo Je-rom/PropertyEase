@@ -28,7 +28,7 @@ export class PaystackService {
           amount: amount * 100,
           reference,
           callback_url:
-            'https://cda2bf5d1dfdd144211520251672ca94.serveo.net/payment/callback',
+            'https://7a8b901ec41743c987ab91954dab5707.serveo.net/payment/callback',
         },
         {
           headers: {

@@ -9,6 +9,8 @@ export interface UserDocument extends Document {
   email: string;
   phoneNumber: number;
   role: string;
+  bankAccountNumber: string;
+  bankCode: string;
   password: string;
   confirmPassword: string;
   photo?: string;
@@ -35,6 +37,12 @@ export class User {
     required: true,
   })
   role: string;
+
+  @Prop()
+  bankAccountNumber: string;
+
+  @Prop()
+  bankCode: string;
 
   @Prop({ required: true, select: false })
   password: string;

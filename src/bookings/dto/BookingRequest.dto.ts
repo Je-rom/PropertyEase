@@ -16,4 +16,7 @@ export class BookingRequestDto {
   @IsNotEmpty()
   @IsEnum(['Rent', 'Purchase'])
   transactionType: string;
+
+  @IsNotEmpty({ message: 'An Amount is required' })
+  amount: number;
 }

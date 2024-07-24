@@ -24,8 +24,8 @@ export class PaymentController {
 
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  async getAllPayments(){
-    return this.paymentService.getPayments()
+  async getAllPayments() {
+    return this.paymentService.getPayments();
   }
 
   @Post()
@@ -53,22 +53,22 @@ export class PaymentController {
   @UseGuards(JwtAuthGuard)
   @Roles(Role.Tenant)
   async handlePaymentWebhook(@Body() body: any): Promise<any> {
-    const { event, data: eventData } = body;
-    if (event !== 'charge.success' || !eventData) {
-      throw new BadRequestException('Invalid webhook event or data');
-    }
-    const reference = eventData.reference;
-    const result = await this.paymentService.processPaymentCallback(body, reference);
+    const result = await this.paymentService.processPaymentCallback(body);
     return { message: 'Webhook received', result };
   }
-  
 
-  @Post('callback')
-async handleCallback(@Body() body: any): Promise<any> {
-  console.log('Handling callback with body:', body);
-  const { trxref, reference } = body;
-  const result = await this.paymentService.processPaymentCallback(body, reference);
-  return { message: 'Callback received', result };
-}
-
+  @Get('callback')
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Tenant)
+  async handleCallback(
+    @Query('trxref') trxref: string,
+    @Query('reference') reference: string,
+  ): Promise<string> {
+    try {
+      const payment = await this.paymentService.verifyPayment(reference);
+      return `Payment completed for transaction reference ${trxref}`;
+    } catch (error) {
+      return `Processing payment for transaction reference ${trxref}: ${error.message}`;
+    }
+  }
 }
