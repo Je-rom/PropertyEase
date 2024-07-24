@@ -56,6 +56,8 @@ export class CreatePropertyDto {
   coverImage: string;
 
   @ArrayMaxSize(8, { message: 'You can add up to 8 images' })
+  image: string;
+
   @IsNotEmpty({ message: 'Please give a availability status of the property' })
   @IsBoolean()
   isAvailable: boolean;
@@ -63,7 +65,6 @@ export class CreatePropertyDto {
   @IsOptional()
   geolocation: { latitude: number; longitude: number };
 
-  @IsNotEmpty({ message: 'Please input the available date ' })
   @Type(() => Date)
   dateListed: Date;
 }

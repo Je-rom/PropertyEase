@@ -90,6 +90,7 @@ export class BookingService {
 
   //get bookings for a user
   getBookingsForUser(userId: string): Query<Booking[], Booking> {
+    console.log(userId)
     const booking = this.bookingModel.find({
       tenant: new Types.ObjectId(userId),
     });

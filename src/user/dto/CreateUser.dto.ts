@@ -40,12 +40,10 @@ export class CreateUserDto {
   confirmPassword: string;
 
   @IsOptional()
-  @IsString()
   @IsNotEmpty({ message: 'Bank account number is required for PropertyOwner' })
-  bankAccountNumber?: string;
+  bankAccountNumber?: number;
 
   @IsOptional()
-  @IsString()
   @IsNotEmpty({ message: 'Bank code is required for PropertyOwner' })
-  bankCode?: string;
+  bankCode?: number;
 }

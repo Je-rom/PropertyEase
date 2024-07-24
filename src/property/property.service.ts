@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Query } from 'mongoose';
+import { Model, Query, Types } from 'mongoose';
 import { Property, PropertyDocument } from 'src/schemas/property.schema';
 import { CreatePropertyDto } from './dto/CreateProperty.dto';
 import { UserDocument } from 'src/schemas/user.schema';
@@ -68,13 +68,45 @@ export class PropertyService {
     return this.propertyModel.find();
   }
 
+  //get properties for a user
+  async getPropertyForUser(userId: string) {
+    if (!Types.ObjectId.isValid(userId)) {
+      console.error('Invalid ObjectId:', userId);
+      return [];
+    }
+    const property = await this.propertyModel.find({
+      owner: new Types.ObjectId(userId),
+    });
+    if (!property || property.length === 0) {
+      throw new NotFoundException('No Property found for this user');
+    } else {
+      return property;
+    }
+  }
+
   //delete property
   async deleteProperty(propertyId: string) {
     return await this.propertyModel.findByIdAndDelete(propertyId);
   }
 
-  //delete property by user id
-  // async deletePropertiesByUserId(userId: string) {
-  //   return await this.propertyModel.deleteMany({ userId });
-  // }
+  //delete property for a user
+  async deletePropertyForUser(userId: string, propertyId: string) {
+    if (
+      !Types.ObjectId.isValid(userId) ||
+      !Types.ObjectId.isValid(propertyId)
+    ) {
+      throw new Error('Invalid ObjectId');
+    }
+
+    const result = await this.propertyModel.deleteOne({
+      _id: new Types.ObjectId(propertyId),
+      propertyowner: new Types.ObjectId(userId),
+    });
+
+    if (result.deletedCount === 0) {
+      throw new Error('Property not found or not owned by user');
+    }
+
+    return { message: 'Property deleted successfully' };
+  }
 }

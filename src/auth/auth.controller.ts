@@ -21,7 +21,8 @@ export class AuthController {
 
   @Post('signup')
   async signup(@Body() createUserDto: CreateUserDto, @Res() res) {
-    return await this.authService.signup(createUserDto, res);
+    const result = await this.authService.signup(createUserDto, res);
+    return res.status(201).json(result);
   }
 
   @Post('signin')

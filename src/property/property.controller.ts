@@ -59,6 +59,14 @@ export class PropertyController {
     return properties;
   }
 
+  @Get('user')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.PropertyOwner)
+  async getPropertyForuser(@Req() req) {
+    const userId = req.user.id;
+    return this.propertyService.getPropertyForUser(userId);
+  }
+
   //update property by ID
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -99,4 +107,12 @@ export class PropertyController {
       throw new HttpException('property not found', 404);
     }
   }
+
+  // @Delete()
+  // UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(Role.PropertyOwner)
+  // async deletePropertyUser(){
+
+  // }
+
 }
