@@ -24,7 +24,7 @@ export class BookingService {
     createBookingDto: BookingRequestDto,
     tenant: UserDocument,
   ): Promise<Booking> {
-    const { property, checkInDate, checkOutDate, transactionType } = createBookingDto;
+    const { property, checkInDate, checkOutDate, transactionType, amount } = createBookingDto;
 
     //check if the property exists and is available
     const propertyDoc = await this.propertyModel.findById(property);
@@ -54,6 +54,10 @@ export class BookingService {
         );
       }
     }
+//the amount must be the right amount on the property
+    if(createBookingDto.amount !== propertyDoc.price){
+      throw new BadRequestException('Input the right amount for this property')
+    }
 
     //check if the tenant already has a booking for this property
     const existingBooking = await this.bookingModel.findOne({
@@ -74,6 +78,7 @@ export class BookingService {
       checkInDate,
       checkOutDate,
       transactionType,
+      amount,
       status: 'Pending',
       dateRequested: new Date(),
     });

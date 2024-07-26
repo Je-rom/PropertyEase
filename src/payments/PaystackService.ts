@@ -28,7 +28,7 @@ export class PaystackService {
           amount: amount * 100,
           reference,
           callback_url:
-            'https://7a8b901ec41743c987ab91954dab5707.serveo.net/payment/callback',
+            'https://3333-jerom-propertyease-35d7n7qr6ri.ws-eu115.gitpod.io/payment/callback',
         },
         {
           headers: {
