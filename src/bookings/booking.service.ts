@@ -56,7 +56,7 @@ export class BookingService {
     }
 //the amount must be the right amount on the property
     if(createBookingDto.amount !== propertyDoc.price){
-      throw new BadRequestException('Input the right amount for this property.')
+      throw new BadRequestException('Input the right amount for this property')
     }
 
     //check if the tenant already has a booking for this property
