@@ -78,7 +78,7 @@ export class PaymentService {
           amount: createPaymentDto.amount * 100,
           reference,
           callback_url:
-            'https://3333-jerom-propertyease-35d7n7qr6ri.ws-eu115.gitpod.io/payment/callback',
+            'https://3b8a-102-89-34-236.ngrok-free.app/payment/callback',
         },
         {
           headers: {
@@ -113,7 +113,7 @@ export class PaymentService {
         payment: savedPayment,
         paystack: response.data.data,
         propertyOwner: {
-          name: owner.name,
+          name: `${owner.firstName} ${owner.lastName}`,
           email: owner.email,
         },
       };
@@ -166,7 +166,7 @@ export class PaymentService {
     }
 
     Logger.log(
-      `Funds disbursed to property owner: ${owner.name}`,
+      `Funds disbursed to property owner: ${owner.firstName}`,
       'PaymentService',
     );
   }

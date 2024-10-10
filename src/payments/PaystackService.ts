@@ -28,7 +28,7 @@ export class PaystackService {
           amount: amount * 100,
           reference,
           callback_url:
-            'https://3333-jerom-propertyease-35d7n7qr6ri.ws-eu115.gitpod.io/payment/callback',
+            'https://3b8a-102-89-34-236.ngrok-free.app/payment/callback',
         },
         {
           headers: {

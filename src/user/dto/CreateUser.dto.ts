@@ -11,10 +11,15 @@ import {
 } from 'class-validator';
 
 export class CreateUserDto {
-  @IsNotEmpty({ message: 'Please input a name' })
+  @IsNotEmpty({ message: 'Please input your firstname' })
   @Length(5, 50, { message: 'Name must be between 5 and 50 characters' })
   @IsString()
-  name: string;
+  firstName: string;
+
+  @IsNotEmpty({ message: 'Please input your last name' })
+  @Length(5, 50, { message: 'Name must be between 5 and 50 characters' })
+  @IsString()
+  lastName: string;
 
   @IsNotEmpty({ message: 'Please input your email address' })
   @IsEmail({}, { message: 'Please input a valid email' })
@@ -39,11 +44,10 @@ export class CreateUserDto {
   @IsString()
   confirmPassword: string;
 
-  @IsOptional()
   @IsNotEmpty({ message: 'Bank account number is required for PropertyOwner' })
-  bankAccountNumber?: number;
+  @Matches(/^\d+$/, { message: 'Bank account number must be numeric' })
+  bankAccountNumber: string;
 
-  @IsOptional()
   @IsNotEmpty({ message: 'Bank code is required for PropertyOwner' })
-  bankCode?: number;
+  bankCode: string;
 }

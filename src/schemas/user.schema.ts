@@ -5,7 +5,8 @@ import * as validator from 'validator';
 import * as crypto from 'crypto';
 
 export interface UserDocument extends Document {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phoneNumber: number;
   role: string;
@@ -24,7 +25,10 @@ export interface UserDocument extends Document {
 @Schema()
 export class User {
   @Prop({ required: true })
-  name: string;
+  firstName: string;
+
+  @Prop({ required: true })
+  lastName: string;
 
   @Prop({ required: true, unique: true, lowercase: true })
   email: string;
@@ -38,11 +42,11 @@ export class User {
   })
   role: string;
 
-  @Prop({ type: Number })
-  bankAccountNumber: number;
+  @Prop({ type: String })
+  bankAccountNumber: string;
 
-  @Prop({ type: Number })
-  bankCode: number;
+  @Prop({ type: String })
+  bankCode: string;
 
   @Prop({ required: true, select: false })
   password: string;
