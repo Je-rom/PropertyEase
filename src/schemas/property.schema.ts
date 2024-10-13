@@ -19,8 +19,8 @@ export class Property {
   @Prop({ required: true })
   price: number;
 
-  @Prop()
-  discount: number;
+  @Prop({ type: Number, default: 0 })
+  discount?: number;
 
   @Prop({ type: [String], required: true })
   amenities: string[];

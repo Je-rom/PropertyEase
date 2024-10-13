@@ -3,7 +3,7 @@ import { IsNotEmpty, IsOptional, IsDateString, IsEnum } from 'class-validator';
 
 export class BookingRequestDto {
   @IsNotEmpty()
-  property: Types.ObjectId;
+  propertyId: Types.ObjectId;
 
   @IsOptional()
   @IsDateString()

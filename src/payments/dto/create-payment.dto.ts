@@ -13,7 +13,7 @@ export class CreatePaymentDto {
   @IsNotEmpty()
   amount: number;
 
-  @IsEnum(['Card','BankTransfer', 'USSD', 'MobileMoney', 'QR'])
-  @IsNotEmpty()
-  method: string;
+  // @IsEnum(['Card','BankTransfer', 'USSD', 'MobileMoney', 'QR'])
+  // @IsNotEmpty()
+  // method: string;
 }

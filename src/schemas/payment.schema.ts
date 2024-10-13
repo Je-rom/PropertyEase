@@ -13,8 +13,8 @@ export class Payment {
   @Prop({ required: true })
   date: Date;
 
-  @Prop({ required: true })
-  method: 'Card' | 'BankTransfer' | 'USSD' | 'MobileMoney' | 'QR';
+  // @Prop({ required: true })
+  // method: 'Card' | 'BankTransfer' | 'USSD' | 'MobileMoney' | 'QR';
 
   @Prop({ required: true })
   status: 'Pending' | 'Completed' | 'Failed';

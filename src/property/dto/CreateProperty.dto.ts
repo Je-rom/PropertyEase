@@ -38,7 +38,7 @@ export class CreatePropertyDto {
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
-  discount: number;
+  discount?: number;
 
   @IsArray({ message: 'Amenities must be an array of strings' })
   @IsNotEmpty({

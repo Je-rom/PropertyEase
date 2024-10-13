@@ -24,10 +24,11 @@ export class BookingService {
     createBookingDto: BookingRequestDto,
     tenant: UserDocument,
   ): Promise<Booking> {
-    const { property, checkInDate, checkOutDate, transactionType, amount } = createBookingDto;
+    const { propertyId, checkInDate, checkOutDate, transactionType, amount } =
+      createBookingDto;
 
     //check if the property exists and is available
-    const propertyDoc = await this.propertyModel.findById(property);
+    const propertyDoc = await this.propertyModel.findById(propertyId);
     if (!propertyDoc) {
       throw new BadRequestException('Property does not exist');
     }
@@ -54,15 +55,15 @@ export class BookingService {
         );
       }
     }
-//the amount must be the right amount on the property
-    if(createBookingDto.amount !== propertyDoc.price){
-      throw new BadRequestException('Input the right amount for this property')
+    //the amount must be the right amount on the property
+    if (createBookingDto.amount !== propertyDoc.price) {
+      throw new BadRequestException('Input the right amount for this property');
     }
 
     //check if the tenant already has a booking for this property
     const existingBooking = await this.bookingModel.findOne({
       tenant: tenant._id,
-      property,
+      propertyId,
     });
 
     if (existingBooking) {
@@ -74,7 +75,7 @@ export class BookingService {
     //create booking
     const booking = new this.bookingModel({
       tenant: tenant._id,
-      property,
+      propertyId,
       checkInDate,
       checkOutDate,
       transactionType,
@@ -95,7 +96,7 @@ export class BookingService {
 
   //get bookings for a user
   getBookingsForUser(userId: string): Query<Booking[], Booking> {
-    console.log(userId)
+    console.log(userId);
     const booking = this.bookingModel.find({
       tenant: new Types.ObjectId(userId),
     });
@@ -139,7 +140,7 @@ export class BookingService {
     }
 
     //fetch the associated property
-    const property = await this.propertyModel.findById(booking.property);
+    const property = await this.propertyModel.findById(booking.propertyId);
     if (!property) {
       throw new NotFoundException('Property not found');
     }

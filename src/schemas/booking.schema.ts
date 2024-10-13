@@ -11,7 +11,7 @@ export class Booking {
   tenant: Ref<User>;
 
   @Prop({ type: Types.ObjectId, ref: 'Property', required: true })
-  property: Ref<Property>;
+  propertyId: Ref<Property>;
 
   @Prop({ type: Types.ObjectId, ref: 'Payment', required: false })
   payment?: Ref<Payment>;

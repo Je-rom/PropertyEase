@@ -1,7 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import * as Paystack from 'paystack';
-import { PaystackConfig } from 'src/config/paystack.config';
-import axios from 'axios';
 
 @Injectable()
 export class PaystackService {
@@ -9,44 +7,6 @@ export class PaystackService {
   private SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
   constructor() {
     this.paystack = Paystack(this.SECRET_KEY);
-  }
-
-  async initializePayment(
-    email: string,
-    amount: number,
-    reference: string,
-    method: string,
-    booking: string,
-  ) {
-    try {
-      const response = await axios.post(
-        'https://api.paystack.co/transaction/initialize',
-        {
-          email,
-          booking,
-          method,
-          amount: amount * 100,
-          reference,
-          callback_url:
-            'https://e14a-102-89-23-233.ngrok-free.app/payment/callback',
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${this.SECRET_KEY}`,
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-      if (response.status !== 200 || !response.data.status) {
-        console.error('Paystack initialization response:', response.data);
-        throw new BadRequestException('Payment initialization failed');
-      }
-
-      return response.data.data;
-    } catch (error) {
-      console.error('Error during payment initialization:', error);
-      throw new BadRequestException('Payment initialization failed');
-    }
   }
 
   async verifyPayment(reference: string): Promise<any> {

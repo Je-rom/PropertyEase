@@ -59,7 +59,7 @@ export class PaymentService {
       }
 
       //check if the property still exists
-      const property = await this.propertyModel.findById(booking.property);
+      const property = await this.propertyModel.findById(booking.propertyId);
       if (!property) {
         throw new NotFoundException('Property not found');
       }
@@ -70,6 +70,13 @@ export class PaymentService {
         throw new NotFoundException('Property owner not found');
       }
 
+      //the amount must be the right amount on the property
+      if (createPaymentDto.amount !== property.price) {
+        throw new BadRequestException(
+          'Input the right amount for this property',
+        );
+      }
+
       const reference = `ref_${Date.now()}`;
       const response = await axios.post(
         'https://api.paystack.co/transaction/initialize',
@@ -78,7 +85,7 @@ export class PaymentService {
           amount: createPaymentDto.amount * 100,
           reference,
           callback_url:
-            'https://e14a-102-89-23-233.ngrok-free.app/payment/callback',
+            'https://663a-102-89-40-211.ngrok-free.app/payment/callback',
         },
         {
           headers: {
@@ -89,7 +96,7 @@ export class PaymentService {
       );
       if (response.status !== 200 || !response.data.status) {
         Logger.error('Paystack initialization response:', response.data);
-        throw new BadRequestException('Payment initialization failed');
+        throw new BadRequestException('Payment initialization failed.');
       }
 
       Logger.log(
@@ -100,7 +107,7 @@ export class PaymentService {
         ...createPaymentDto,
         status: 'Pending',
         date: new Date(),
-        method: createPaymentDto.method,
+        // method: createPaymentDto.method,
         currency: 'NGN',
         reference: reference,
       });
@@ -134,7 +141,7 @@ export class PaymentService {
       throw new NotFoundException('Booking not found');
     }
 
-    const property = await this.propertyModel.findById(booking.property);
+    const property = await this.propertyModel.findById(booking.propertyId);
     if (!property) {
       throw new NotFoundException('Property not found');
     }
@@ -182,7 +189,7 @@ export class PaymentService {
       //if the payment is already completed, skip
       if (payment.status === 'Completed') {
         return {
-          message: 'Payment already completed',
+          message: 'Payment completed',
           payment,
         };
       }
