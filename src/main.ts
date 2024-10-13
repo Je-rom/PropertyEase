@@ -13,6 +13,7 @@ async function bootstrap() {
   app.useLogger(logger);
   app.useGlobalPipes(new ValidationPipe()); //validation, registers pipes as global pipes (will be used within every HTTP route handler)
   // app.useGlobalFilters(new AllExceptionsFilter());
+  app.enableCors();
   await app.listen(3333);
   app.use(bodyParser.json());
   logger.log(`Application is running on: ${await app.getUrl()}`);

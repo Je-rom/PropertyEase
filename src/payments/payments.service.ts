@@ -78,7 +78,7 @@ export class PaymentService {
           amount: createPaymentDto.amount * 100,
           reference,
           callback_url:
-            'https://3b8a-102-89-34-236.ngrok-free.app/payment/callback',
+            'https://e14a-102-89-23-233.ngrok-free.app/payment/callback',
         },
         {
           headers: {
@@ -173,6 +173,21 @@ export class PaymentService {
 
   async verifyPayment(reference: string): Promise<any> {
     try {
+      //get payment record
+      const payment = await this.PaymentModel.findOne({ reference });
+      if (!payment) {
+        throw new NotFoundException('Payment not found');
+      }
+
+      //if the payment is already completed, skip
+      if (payment.status === 'Completed') {
+        return {
+          message: 'Payment already completed',
+          payment,
+        };
+      }
+
+      //if status is not completed
       const response = await axios.get(
         `https://api.paystack.co/transaction/verify/${reference}`,
         {
@@ -186,16 +201,10 @@ export class PaymentService {
         throw new BadRequestException('Payment verification failed');
       }
 
-      const payment = await this.PaymentModel.findOne({ reference });
-      if (!payment) {
-        throw new NotFoundException('Payment not found');
-      }
-
+      //update payment status if the verification was successful
       if (response.data.data.status === 'success') {
         payment.status = 'Completed';
         await payment.save();
-
-        // Disburse funds to property owner
         await this.disburseFunds(payment.booking.toString());
       } else {
         payment.status = 'Failed';
@@ -231,7 +240,7 @@ export class PaymentService {
     return payment;
   }
 
-  async processPaymentCallback(data: any): Promise<any> {
+  async processPaymentWebhook(data: any): Promise<any> {
     try {
       const { event, data: eventData } = data;
       if (event !== 'charge.success' || !eventData) {

@@ -53,22 +53,24 @@ export class PaymentController {
   @UseGuards(JwtAuthGuard)
   @Roles(Role.Tenant)
   async handlePaymentWebhook(@Body() body: any): Promise<any> {
-    const result = await this.paymentService.processPaymentCallback(body);
+    console.log(body, 'jwefwje');
+    const result = await this.paymentService.processPaymentWebhook(body);
     return { message: 'Webhook received', result };
   }
 
   @Get('callback')
   @UseGuards(JwtAuthGuard)
   @Roles(Role.Tenant)
-  async handleCallback(
-    @Query('trxref') trxref: string,
-    @Query('reference') reference: string,
-  ): Promise<string> {
+  async handleCallback(@Query('reference') reference: string): Promise<string> {
     try {
       const payment = await this.paymentService.verifyPayment(reference);
-      return `Payment completed for transaction reference ${trxref}`;
+      return `Payment completed for transaction reference ${reference}. Payment details: ${JSON.stringify(payment)}`;
     } catch (error) {
-      return `Processing payment for transaction reference ${trxref}: ${error.message}`;
+      console.error(
+        `Failed to process payment callback for ${reference}:`,
+        error.message,
+      );
+      return `Failed to process payment for transaction reference ${reference}: ${error.message}`;
     }
   }
 }

@@ -28,7 +28,7 @@ export class PaystackService {
           amount: amount * 100,
           reference,
           callback_url:
-            'https://3b8a-102-89-34-236.ngrok-free.app/payment/callback',
+            'https://e14a-102-89-23-233.ngrok-free.app/payment/callback',
         },
         {
           headers: {
